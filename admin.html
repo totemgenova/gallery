@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a0704">
+  <title>TOTEM · Pannello foto</title>
+  <link rel="icon" href="assets/icona.png">
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    .pannello { max-width: 860px; }
+    .scheda { border: 1px solid var(--linea); background: rgba(21,15,9,.82); padding: 24px; margin-bottom: 18px; backdrop-filter: blur(6px); }
+    .scheda h2 { font-weight: 300; font-size: 15px; letter-spacing: .3em; text-transform: uppercase; color: var(--oro-chiaro); margin-bottom: 16px; }
+    .campo { display: block; margin-bottom: 14px; }
+    .campo span { display: block; font-size: 11px; letter-spacing: .25em; text-transform: uppercase; color: var(--tenue); margin-bottom: 6px; }
+    .campo input { width: 100%; background: #0d0905; border: 1px solid var(--linea); color: var(--testo); font: inherit; font-size: 16px; padding: 12px 14px; color-scheme: dark; }
+    .campo input:focus { outline: none; border-color: var(--oro); }
+    .riga2 { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
+    @media (max-width: 600px) { .riga2 { grid-template-columns: 1fr; } }
+    .nota { color: var(--tenue); font-size: 14px; }
+    .nota a { color: var(--oro-chiaro); }
+    .barra-top { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+
+    .lista-serate { display: flex; flex-direction: column; gap: 10px; }
+    .voce { display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; align-items: center; padding: 10px; border: 1px solid var(--linea); background: rgba(10,7,4,.6); }
+    .voce img, .voce .vuota { width: 64px; height: 64px; object-fit: cover; background: #1c140b; display: block; }
+    .voce .t { font-size: 17px; letter-spacing: .12em; text-transform: uppercase; color: var(--oro-chiaro); }
+    .voce .s { font-size: 13px; color: var(--tenue); }
+    .voce .s b { color: var(--oro); font-weight: 400; }
+    .voce .az { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    @media (max-width: 640px) { .voce { grid-template-columns: 56px 1fr; } .voce img, .voce .vuota { width: 56px; height: 56px; } .voce .az { grid-column: 1 / -1; justify-content: flex-start; } }
+
+    .zona {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+      border: 1px dashed var(--oro); padding: 40px 20px; text-align: center; cursor: pointer;
+      background: radial-gradient(circle at 50% 30%, rgba(226,184,113,.08), transparent 70%);
+      transition: background .2s, border-color .2s;
+    }
+    .zona:hover, .zona.sopra { background: radial-gradient(circle at 50% 30%, rgba(226,184,113,.2), transparent 75%); border-style: solid; }
+    .zona img { height: 90px; opacity: .9; }
+    .zona .grande { font-size: 15px; letter-spacing: .25em; text-transform: uppercase; color: var(--oro-chiaro); }
+    .anteprime { display: grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 4px; margin-top: 16px; }
+    .ant { position: relative; aspect-ratio: 1; background: #1c140b; overflow: hidden; }
+    .ant img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ant button { position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; border: 0; background: rgba(0,0,0,.7); color: #fff; cursor: pointer; font-size: 16px; line-height: 1; }
+    .ant.sel::after { content: "✓"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(165,82,58,.55); color: #fff; font-size: 28px; }
+    .ant.cliccabile { cursor: pointer; }
+    .azioni { display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-top: 18px; }
+
+    .progresso { height: 4px; background: #241a0f; margin: 14px 0 8px; overflow: hidden; }
+    .progresso div { height: 100%; width: 0; background: var(--grad); transition: width .3s; }
+    .messaggio { text-align: center; padding: 8px 0; font-size: 15px; }
+    .ok { color: #c9e6a6; }
+    .errore { color: #f0a58c; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="sfondo"></div>
+  <header class="testata">
+    <a href="./"><img class="logo" src="assets/logo.png" alt="TOTEM" style="width:min(200px,50vw)"></a>
+    <div class="divisore"><i></i></div>
+    <div class="titolo-pagina spaziato">Pannello foto</div>
+  </header>
+
+  <main class="pannello">
+
+    <!-- ACCESSO -->
+    <section id="vAccesso" class="scheda" hidden>
+      <h2>Accesso</h2>
+      <label class="campo"><span>Chiave di accesso GitHub</span><input id="token" type="password" autocomplete="off" placeholder="github_pat_…"></label>
+      <p class="nota">È la chiave che hai creato durante l'installazione. Viene salvata solo su questo dispositivo.</p>
+      <div class="azioni"><span></span><button class="btn btn-oro" id="entra">Entra</button></div>
+      <p class="messaggio errore" id="errAccesso"></p>
+    </section>
+
+    <!-- ELENCO -->
+    <section id="vElenco" hidden>
+      <div class="barra-top">
+        <a class="btn btn-piccolo" href="./" target="_blank">Vedi il sito</a>
+        <button class="btn btn-piccolo" id="aggiorna">Aggiorna</button>
+        <button class="btn btn-piccolo" id="esci">Esci</button>
+      </div>
+
+      <div class="scheda">
+        <h2>Nuova serata</h2>
+        <div class="riga2">
+          <label class="campo"><span>Nome della serata</span><input id="nTitolo" maxlength="60" placeholder="es. Opening Night"></label>
+          <label class="campo"><span>Data</span><input id="nData" type="date"></label>
+        </div>
+        <div class="azioni"><span class="nota">Poi scegli le foto da caricare.</span><button class="btn btn-oro" id="crea">Crea e carica foto</button></div>
+      </div>
+
+      <div class="scheda">
+        <h2>Serate pubblicate</h2>
+        <div class="lista-serate" id="lista"><p class="nota">Caricamento…</p></div>
+      </div>
+    </section>
+
+    <!-- CARICAMENTO -->
+    <section id="vCarica" class="scheda" hidden>
+      <h2 id="caricaTitolo">Carica foto</h2>
+      <label class="zona" id="zona">
+        <img src="assets/maschera.png" alt="">
+        <span class="grande">Trascina qui le foto</span>
+        <span class="nota">oppure tocca per sceglierle dal telefono o dal computer</span>
+        <input type="file" id="file" accept="image/*" multiple hidden>
+      </label>
+      <div class="anteprime" id="anteprime"></div>
+      <div id="avanzamento" hidden>
+        <div class="progresso"><div id="barra"></div></div>
+        <p class="messaggio" id="msgCarica"></p>
+      </div>
+      <div class="azioni">
+        <button class="btn btn-piccolo" id="annullaCarica">← Indietro</button>
+        <button class="btn btn-oro" id="pubblica" disabled>Pubblica</button>
+      </div>
+    </section>
+
+    <!-- GESTIONE -->
+    <section id="vGestisci" class="scheda" hidden>
+      <h2 id="gestTitolo">Gestisci foto</h2>
+      <p class="nota">Tocca le foto da eliminare, poi premi “Elimina selezionate”.</p>
+      <div class="anteprime" id="gestFoto"></div>
+      <p class="messaggio" id="msgGest"></p>
+      <div class="azioni">
+        <button class="btn btn-piccolo" id="chiudiGest">← Indietro</button>
+        <button class="btn btn-pericolo" id="eliminaSel" disabled>Elimina selezionate</button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="piede"><p>Le modifiche compaiono sul sito dopo circa 1–2 minuti.</p></footer>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/gh.js"></script>
+  <script src="assets/jszip.min.js"></script>
+  <script src="assets/admin.js"></script>
+</body>
+</html>

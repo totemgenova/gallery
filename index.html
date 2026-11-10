@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0704">
+  <title>TOTEM · Foto</title>
+  <meta name="description" content="Le foto delle serate TOTEM – Sundays at Karma. Scaricale gratis.">
+  <link rel="icon" href="assets/icona.png">
+  <link rel="apple-touch-icon" href="assets/icona.png">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="sfondo"></div>
+
+  <header class="testata">
+    <a href="#/"><img class="logo" src="assets/logo.png" alt="TOTEM"></a>
+    <div class="sotto spaziato" id="sottotitolo"></div>
+    <div class="divisore"><i></i></div>
+    <div class="titolo-pagina spaziato">Le foto delle serate</div>
+  </header>
+
+  <main id="app"><p class="stato">Caricamento…</p></main>
+
+  <footer class="piede">
+    <div class="divisore"><i></i></div>
+    <div class="luogo" id="luogo"></div>
+    <p>Download gratuito per uso personale.</p>
+    <p id="rimozione"></p>
+  </footer>
+
+  <div class="lb" id="lb" hidden>
+    <div class="lb-barra">
+      <span class="lb-conta" id="lbConta"></span>
+      <div class="lb-azioni">
+        <a class="btn btn-oro btn-piccolo" id="lbScarica" download>Scarica</a>
+        <button class="lb-x" id="lbChiudi" aria-label="Chiudi">&times;</button>
+      </div>
+    </div>
+    <div class="lb-palco" id="lbPalco">
+      <button class="lb-nav lb-prec" id="lbPrec" aria-label="Precedente">&#8249;</button>
+      <img id="lbImg" alt="">
+      <button class="lb-nav lb-succ" id="lbSucc" aria-label="Successiva">&#8250;</button>
+    </div>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/sito.js"></script>
+</body>
+</html>

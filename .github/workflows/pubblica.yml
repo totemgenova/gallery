@@ -1,0 +1,79 @@
+name: Pubblica sito foto
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pubblica-sito
+  cancel-in-progress: false
+
+jobs:
+  pubblica:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sistema le foto caricate
+        run: |
+          shopt -s nullglob
+          mkdir -p foto data
+          for z in upload/*.zip; do
+            unzip -o -q "$z" -d foto/
+            rm -f "$z"
+          done
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          serate = []
+          for d in Path("foto").iterdir():
+              if not d.is_dir():
+                  continue
+              full = {p.name for p in (d / "full").glob("*.jpg")}
+              thumb = {p.name for p in (d / "thumb").glob("*.jpg")}
+              foto = sorted(full & thumb)
+              if not foto:
+                  continue
+              try:
+                  info = json.loads((d / "info.json").read_text("utf-8"))
+              except Exception:
+                  info = {}
+              serate.append({"id": d.name, "titolo": info.get("titolo", d.name),
+                             "data": info.get("data", ""), "foto": foto})
+          serate.sort(key=lambda s: (s["data"], s["id"]), reverse=True)
+          Path("data/serate.json").write_text(json.dumps(serate, ensure_ascii=False), "utf-8")
+          print(len(serate), "serate,", sum(len(s["foto"]) for s in serate), "foto")
+          PY
+
+      - name: Salva le modifiche
+        run: |
+          git config user.name "totem-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A foto data upload
+          if ! git diff --cached --quiet; then
+            git commit -q -m "Foto sistemate automaticamente"
+            git pull -q --rebase
+            git push -q
+          fi
+
+      - name: Prepara pagine
+        run: |
+          mkdir _site
+          cp -r index.html admin.html assets data _site/
+          if [ -d foto ]; then cp -r foto _site/; fi
+          touch _site/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
